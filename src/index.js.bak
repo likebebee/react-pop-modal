@@ -1,0 +1,64 @@
+import React, {Component} from 'react';
+import ReactDom from 'react-dom';
+import Axios from 'axios';
+import PopModal from './components/PopModal';
+
+class FetchDataByAxios extends Component{
+	constructor(props){
+		super(props);
+		this.handlePopBtn = this.handlePopBtn.bind(this);
+		this.state = {
+			mainSuit: 'chiefcomplaint',
+			current: 'presentillness',
+			showPop: false
+		}
+	}
+
+	componentDidMount() {
+		const url = "http://192.168.2.165:8080/icss-web/chronic_controller/get_medicaltemplate_info?relationId=792&type=2";
+		const _this = this;
+		const cancelToken = Axios.CancelToken;
+		const source = cancelToken.source();
+
+		Axios.get(url, {
+			cancelToken: source.token
+		}).then(function(response){
+			let data = response.data;
+			console.log(data);
+			_this.setState({
+				mainSuit:['fds','few',23],//data.data[0].chiefComplaint
+				current: data.data[0].presentIllness,
+				popBody: <div className="test">{data.data[0].presentIllness}</div>
+			})
+		}).catch(function(msg){
+			console.log(msg);
+		});
+		
+	}
+
+	componentWillUnMount(){
+		source.cancel('zn test');
+	}
+
+	handlePopBtn(){
+		this.setState({
+			showPop: !this.state.showPop
+		})
+	}
+
+	render() {
+		return (<div>
+				<button onClick={this.handlePopBtn}>弹窗</button>
+				<PopModal title="我的弹窗" 
+						  body={this.state.popBody} 
+						  show={this.state.showPop}
+						  onClose={this.handlePopBtn}
+				/>
+				</div>);
+	}
+}
+
+ReactDom.render(
+	<FetchDataByAxios />,
+	document.getElementById("root")
+)
